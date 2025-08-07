@@ -10,3 +10,11 @@ Route::prefix('/products')->group(function () {
     Route::put('{id}', [ProductController::class, 'update']);
     Route::delete('{id}', [ProductController::class, 'destroy']);
 });
+
+Route::prefix('/callcenter')->group(function () {
+    Route::post('finance', [CallCenterController::class, 'storeFinance']);
+    Route::post('sales', [CallCenterController::class, 'storeSalesReport']);
+    Route::get('finance', [CallCenterController::class, 'getFinanceList']);
+    Route::get('sales', [CallCenterController::class, 'getSalesList']);
+});
+
