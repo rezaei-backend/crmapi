@@ -72,6 +72,7 @@ class UserController extends Controller
      *     )
      * )
      */
+
     public function updateUserInfo(Request $request)
     {
         $request->validate([
