@@ -132,50 +132,117 @@ class UserController extends Controller
      *     )
      * )
      */
+//    public function getUserInfo(Request $request)
+//    {
+//        $request->validate([
+//            'id' => 'required|integer|exists:users,id'
+//        ]);
+//
+//        $user = DB::table('users')
+//            ->join('usersdetail', 'users.id', '=', 'usersdetail.user_id')
+//            ->where('users.id', $request->id)
+//            ->first();
+//
+//        if (!$user) {
+//            DB::table('usersdetail')->insert([
+//                'user_id' => $request->id,
+//                'city' => '', 'town' => '', 'address' => '', 'zip_code' => ''
+//            ]);
+//            $user = DB::table('users')
+//                ->join('usersdetail', 'users.id', '=', 'usersdetail.user_id')
+//                ->where('users.id', $request->id)
+//                ->first();
+//        }
+//
+//        // تبدیل تاریخ میلادی به شمسی (اختیاری)
+//        [$gy, $gm, $gd] = explode('-', $user->birthday);
+//        [$jy, $jm, $jd] = \Morilog\Jalali\CalendarUtils::toJalali($gy, $gm, $gd);
+//        $prbirthday = sprintf('%04d/%02d/%02d', $jy, $jm, $jd);
+//
+//        return response()->json([
+//            'user' => [
+//                'user_sex' => $user->user_sex,
+//                'first_name' => $user->fname,
+//                'last_name' => $user->lname,
+//                'phone' => $user->phone,
+//                'birthday' => $prbirthday,
+//                'enabled' => $user->enabled
+//            ],
+//            'usersdetail' => [
+//                'city' => $user->city,
+//                'town' => $user->town,
+//                'address' => $user->address,
+//                'zip_code' => $user->zip_code,
+//                'reign' => $user->reign ?? null,
+//                'information' => $user->information ?? null,
+//            ]
+//        ]);
+//    }
+
+
+
+
     public function getUserInfo(Request $request)
     {
+        // اعتبارسنجی ورودی
         $request->validate([
             'id' => 'required|integer|exists:users,id'
         ]);
 
+        // دریافت اطلاعات کاربر با join
         $user = DB::table('users')
-            ->join('usersdetail', 'users.id', '=', 'usersdetail.user_id')
+            ->leftJoin('usersdetail', 'users.id', '=', 'usersdetail.user_id')
             ->where('users.id', $request->id)
             ->first();
 
-        if (!$user) {
+        // اگر اطلاعات جزئیات کاربر وجود نداشت، ایجاد شود
+        if (!$user->user_id) {
             DB::table('usersdetail')->insert([
                 'user_id' => $request->id,
-                'city' => '', 'town' => '', 'address' => '', 'zip_code' => ''
+                'city' => '',
+                'town' => '',
+                'address' => '',
+                'zip_code' => ''
             ]);
+
             $user = DB::table('users')
-                ->join('usersdetail', 'users.id', '=', 'usersdetail.user_id')
+                ->leftJoin('usersdetail', 'users.id', '=', 'usersdetail.user_id')
                 ->where('users.id', $request->id)
                 ->first();
         }
 
-        // تبدیل تاریخ میلادی به شمسی (اختیاری)
-        [$gy, $gm, $gd] = explode('-', $user->birthday);
-        [$jy, $jm, $jd] = \Morilog\Jalali\CalendarUtils::toJalali($gy, $gm, $gd);
-        $prbirthday = sprintf('%04d/%02d/%02d', $jy, $jm, $jd);
+        // تبدیل تاریخ تولد میلادی به شمسی در صورت معتبر بودن
+        $prbirthday = null;
+
+        if (!empty($user->birthday) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $user->birthday)) {
+            try {
+                [$gy, $gm, $gd] = explode('-', $user->birthday);
+                [$jy, $jm, $jd] = \Morilog\Jalali\CalendarUtils::toJalali((int)$gy, (int)$gm, (int)$gd);
+                $prbirthday = sprintf('%04d/%02d/%02d', $jy, $jm, $jd);
+            } catch (\Exception $e) {
+                $prbirthday = null; // یا مقدار پیش‌فرض مثلاً "---/--/--"
+            }
+        }
 
         return response()->json([
             'user' => [
-                'user_sex' => $user->user_sex,
-                'first_name' => $user->fname,
-                'last_name' => $user->lname,
-                'phone' => $user->phone,
+                'user_sex' => $user->user_sex ?? null,
+                'first_name' => $user->fname ?? null,
+                'last_name' => $user->lname ?? null,
+                'phone' => $user->phone ?? null,
                 'birthday' => $prbirthday,
-                'enabled' => $user->enabled
+                'enabled' => $user->enabled ?? null
             ],
             'usersdetail' => [
-                'city' => $user->city,
-                'town' => $user->town,
-                'address' => $user->address,
-                'zip_code' => $user->zip_code,
+                'city' => $user->city ?? '',
+                'town' => $user->town ?? '',
+                'address' => $user->address ?? '',
+                'zip_code' => $user->zip_code ?? '',
                 'reign' => $user->reign ?? null,
                 'information' => $user->information ?? null,
             ]
         ]);
     }
+
+
 }

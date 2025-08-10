@@ -6,6 +6,8 @@ use App\Models\Finance;
 use App\Models\sales_reports;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Morilog\Jalali\Jalalian;
+use Carbon\Carbon;
 use OpenApi\Annotations as OA;
 
 /**
@@ -63,15 +65,15 @@ class CallCenterController extends Controller
      *             @OA\Property(property="phone", type="string"),
      *             @OA\Property(property="record_turn", type="string", enum={"consultation", "site", "face-to-face"}),
      *             @OA\Property(property="unit", type="string", enum={"qom", "tehran"}),
-     *             @OA\Property(property="deposit_date", type="string", format="date", example="2025-08-15"),
+     *             @OA\Property(property="deposit_date", type="string", format="date", example="1404/05/20"),
      *             @OA\Property(property="deposit_time", type="string", format="time", example="14:30"),
      *             @OA\Property(property="amount", type="integer"),
      *             @OA\Property(property="refund_reason", type="string"),
      *             @OA\Property(property="card_number", type="string"),
      *             @OA\Property(property="last_four_digits", type="string"),
      *             @OA\Property(property="turn_type", type="string", enum={"turn", "medicine"}),
-     *             @OA\Property(property="turn_date", type="string", format="date", example="2025-08-15", nullable=true),
-     *             @OA\Property(property="turn_time", type="string", format="time", example="14:30", nullable=true),
+     *             @OA\Property(property="turn_date", type="string", format="date", example="1404/05/21", nullable=true),
+     *             @OA\Property(property="turn_time", type="string", format="time", example="15:00", nullable=true),
      *             @OA\Property(property="dbank", type="string")
      *         )
      *     ),
@@ -102,19 +104,23 @@ class CallCenterController extends Controller
                 'phone' => 'required|string|regex:/^09\d{9}$/',
                 'record_turn' => 'required|string|in:consultation,site,face-to-face',
                 'unit' => 'required|string|in:qom,tehran',
-                'deposit_date' => 'required|date_format:Y-m-d',
+                'deposit_date' => 'required|regex:/^\d{4}\/\d{2}\/\d{2}$/',
                 'deposit_time' => 'required|date_format:H:i',
                 'amount' => 'required|numeric|min:1',
                 'refund_reason' => 'required|string',
                 'card_number' => 'required|string|regex:/^\d{16}$/',
                 'last_four_digits' => 'required|string|regex:/^\d{4}$/',
                 'turn_type' => 'required|string|in:turn,medicine',
-                'turn_date' => 'nullable|date_format:Y-m-d',
+                'turn_date' => 'nullable|regex:/^\d{4}\/\d{2}\/\d{2}$/',
                 'turn_time' => 'nullable|date_format:H:i',
                 'dbank' => 'required|string|max:100',
             ]);
 
-            // بررسی تاریخ و زمان نوبت برای نوع turn
+            $validated['deposit_date'] = Jalalian::fromFormat('Y/m/d', $validated['deposit_date'])->toCarbon()->format('Y-m-d');
+            if ($validated['turn_date']) {
+                $validated['turn_date'] = Jalalian::fromFormat('Y/m/d', $validated['turn_date'])->toCarbon()->format('Y-m-d');
+            }
+
             if ($validated['turn_type'] === 'turn') {
                 if (!$validated['turn_date'] || !$validated['turn_time']) {
                     return response()->json(['success' => false, 'message' => 'تاریخ و زمان نوبت برای نوع turn الزامی است.'], 422);
@@ -130,7 +136,7 @@ class CallCenterController extends Controller
                 $validated['turn_time'] = $validated['turn_time'] . ':00';
             }
 
-            // بررسی رکوردهای تکراری
+            // بررسی رکوردهای تکراری در سه روز گذشته از 4 رقم آخر شماره کارت
             $duplicateCount = Finance::where('last_four_digits', $validated['last_four_digits'])
                 ->whereBetween('deposit_date', [
                     now()->subDays(2)->toDateString(),
@@ -148,6 +154,11 @@ class CallCenterController extends Controller
             $validated['status'] = 1;
 
             $finance = Finance::create($validated);
+
+            $finance->deposit_date = Jalalian::fromCarbon(Carbon::parse($finance->deposit_date))->format('Y/m/d');
+            if ($finance->turn_date) {
+                $finance->turn_date = Jalalian::fromCarbon(Carbon::parse($finance->turn_date))->format('Y/m/d');
+            }
 
             return response()->json([
                 'success' => true,
@@ -172,9 +183,9 @@ class CallCenterController extends Controller
      *             required={"full_name", "phone", "appointment_date", "amount", "deposit_date", "deposit_time", "tracking", "last_four_digits", "report_type", "dbank"},
      *             @OA\Property(property="full_name", type="string"),
      *             @OA\Property(property="phone", type="string"),
-     *             @OA\Property(property="appointment_date", type="string", format="date", example="2025-08-15"),
+     *             @OA\Property(property="appointment_date", type="string", format="date", example="1404/05/20"),
      *             @OA\Property(property="amount", type="integer"),
-     *             @OA\Property(property="deposit_date", type="string", format="date", example="2025-08-15"),
+     *             @OA\Property(property="deposit_date", type="string", format="date", example="1404/05/20"),
      *             @OA\Property(property="deposit_time", type="string", format="time", example="14:30"),
      *             @OA\Property(property="tracking", type="string"),
      *             @OA\Property(property="last_four_digits", type="string"),
@@ -207,15 +218,18 @@ class CallCenterController extends Controller
             $validated = $request->validate([
                 'full_name' => 'required|string|max:255',
                 'phone' => 'required|string|regex:/^09\d{9}$/',
-                'appointment_date' => 'required|date_format:Y-m-d',
+                'appointment_date' => 'required|regex:/^\d{4}\/\d{2}\/\d{2}$/',
                 'amount' => 'required|numeric|min:1',
-                'deposit_date' => 'required|date_format:Y-m-d',
+                'deposit_date' => 'required|regex:/^\d{4}\/\d{2}\/\d{2}$/',
                 'deposit_time' => 'required|date_format:H:i',
                 'tracking' => 'required|string|max:255',
                 'last_four_digits' => 'required|string|regex:/^\d{4}$/',
                 'report_type' => 'required|string|in:turns,medicines,phone_visit',
                 'dbank' => 'required|string|max:100',
             ]);
+
+            $validated['appointment_date'] = Jalalian::fromFormat('Y/m/d', $validated['appointment_date'])->toCarbon()->format('Y-m-d');
+            $validated['deposit_date'] = Jalalian::fromFormat('Y/m/d', $validated['deposit_date'])->toCarbon()->format('Y-m-d');
 
             // افزودن ثانیه به deposit_time
             $validated['deposit_time'] = $validated['deposit_time'] . ':00';
@@ -225,6 +239,9 @@ class CallCenterController extends Controller
             $validated['status'] = 1;
 
             $salesReport = sales_reports::create($validated);
+
+            $salesReport->appointment_date = Jalalian::fromCarbon(Carbon::parse($salesReport->appointment_date))->format('Y/m/d');
+            $salesReport->deposit_date = Jalalian::fromCarbon(Carbon::parse($salesReport->deposit_date))->format('Y/m/d');
 
             return response()->json([
                 'success' => true,
@@ -263,6 +280,16 @@ class CallCenterController extends Controller
         try {
             $finances = Finance::orderBy('created_at', 'desc')->get();
 
+            $finances->transform(function ($finance) {
+                $finance->deposit_date = Jalalian::fromCarbon(Carbon::parse($finance->deposit_date))->format('Y/m/d');
+                if ($finance->turn_date) {
+                    $finance->turn_date = Jalalian::fromCarbon(Carbon::parse($finance->turn_date))->format('Y/m/d');
+                }
+                $finance->created_at = Jalalian::fromCarbon(Carbon::parse($finance->created_at))->format('Y/m/d H:i:s');
+                $finance->updated_at = Jalalian::fromCarbon(Carbon::parse($finance->updated_at))->format('Y/m/d H:i:s');
+                return $finance;
+            });
+
             return response()->json([
                 'success' => true,
                 'message' => 'لیست تمام درخواست‌های عودت با موفقیت دریافت شد.',
@@ -299,6 +326,14 @@ class CallCenterController extends Controller
     {
         try {
             $salesReports = sales_reports::orderBy('created_at', 'desc')->get();
+
+            $salesReports->transform(function ($salesReport) {
+                $salesReport->appointment_date = Jalalian::fromCarbon(Carbon::parse($salesReport->appointment_date))->format('Y/m/d');
+                $salesReport->deposit_date = Jalalian::fromCarbon(Carbon::parse($salesReport->deposit_date))->format('Y/m/d');
+                $salesReport->created_at = Jalalian::fromCarbon(Carbon::parse($salesReport->created_at))->format('Y/m/d H:i:s');
+                $salesReport->updated_at = Jalalian::fromCarbon(Carbon::parse($salesReport->updated_at))->format('Y/m/d H:i:s');
+                return $salesReport;
+            });
 
             return response()->json([
                 'success' => true,

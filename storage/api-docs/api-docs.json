@@ -214,6 +214,128 @@
                     }
                 }
             }
+        },
+        "/api/users/block": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "بلاک کردن کاربر",
+                "description": "کاربری با شناسه مشخص را بلاک می‌کند.",
+                "operationId": "057ca5f9eb41ab233b770aa79d2ed4ab",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "id"
+                                ],
+                                "properties": {
+                                    "id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "نتیجه بلاک کردن"
+                    }
+                }
+            }
+        },
+        "/api/users/update": {
+            "put": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "بروزرسانی اطلاعات کاربر",
+                "operationId": "4fabd68f9d8a9b94875a6f22e74d038f",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "id",
+                                    "fname",
+                                    "lname",
+                                    "phone",
+                                    "birthday"
+                                ],
+                                "properties": {
+                                    "id": {
+                                        "type": "integer"
+                                    },
+                                    "usersex": {
+                                        "type": "string"
+                                    },
+                                    "fname": {
+                                        "type": "string"
+                                    },
+                                    "lname": {
+                                        "type": "string"
+                                    },
+                                    "phone": {
+                                        "type": "string"
+                                    },
+                                    "birthday": {
+                                        "type": "string",
+                                        "example": "1400/01/01"
+                                    },
+                                    "ostan": {
+                                        "type": "string"
+                                    },
+                                    "shahr": {
+                                        "type": "string"
+                                    },
+                                    "address": {
+                                        "type": "string"
+                                    },
+                                    "zipcode": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "نتیجه بروزرسانی اطلاعات"
+                    }
+                }
+            }
+        },
+        "/api/users/info": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "اطلاعات پایه‌ای کاربر",
+                "operationId": "545ef02cd5373fa8f2733bcf7c86a9a2",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "اطلاعات کامل کاربر و usersdetail"
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -253,6 +375,10 @@
         {
             "name": "Products",
             "description": "Products"
+        },
+        {
+            "name": "Users",
+            "description": "Users"
         }
     ]
 }
