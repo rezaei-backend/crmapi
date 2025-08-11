@@ -18,4 +18,9 @@ class LidManagerLog extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    public function admin(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Admin::class, 'to_admin_id', 'id');
+    }
 }

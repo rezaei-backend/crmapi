@@ -25,4 +25,19 @@ class Visit extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    public function visitDetail(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(VisitDetail::class, 'visit_id', 'id');
+    }
+
+    public function calls(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(CallcenterCall::class, 'visit_id', 'id');
+    }
 }

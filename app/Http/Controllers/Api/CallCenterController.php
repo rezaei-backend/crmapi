@@ -107,6 +107,8 @@ class CallCenterController extends Controller
      *     )
      * )
      */
+
+//    ok
     public function storeFinance(Request $request)
     {
         try {
@@ -179,7 +181,7 @@ class CallCenterController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/callcenter/sales",
+     *     path="/api/callcenter/sales-reports",
      *     tags={"CallCenter"},
      *     summary="ثبت گزارش فروش",
      *     description="ثبت یک گزارش فروش جدید در سیستم",
@@ -218,6 +220,8 @@ class CallCenterController extends Controller
      *     )
      * )
      */
+
+//    ok
     public function storeSalesReport(Request $request)
     {
         try {
@@ -278,6 +282,8 @@ class CallCenterController extends Controller
      *     )
      * )
      */
+
+//    ok
     public function getFinanceList()
     {
         try {
@@ -306,7 +312,7 @@ class CallCenterController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/callcenter/sales",
+     *     path="/api/callcenter/sales-reports",
      *     tags={"CallCenter"},
      *     summary="لیست تمام گزارش‌های فروش",
      *     description="دریافت لیست تمام گزارش‌های فروش بدون محدودیت زمانی",
@@ -325,6 +331,8 @@ class CallCenterController extends Controller
      *     )
      * )
      */
+
+//    ok
     public function getSalesList()
     {
         try {
@@ -375,6 +383,8 @@ class CallCenterController extends Controller
      *     )
      * )
      */
+
+//    ok 50%
     public function onlineVisitsManagerLogDetail(Request $request)
     {
         try {
@@ -454,6 +464,8 @@ class CallCenterController extends Controller
      *     )
      * )
      */
+
+//    not ok
     public function sendccLidsToAdmins(Request $request)
     {
         try {
@@ -518,6 +530,8 @@ class CallCenterController extends Controller
      *     )
      * )
      */
+
+//    not ok
     public function callcenterUpdateLidsCalls(Request $request)
     {
         try {
@@ -585,6 +599,8 @@ class CallCenterController extends Controller
      *     )
      * )
      */
+
+//    not ok
     public function callcentersAddCall(Request $request)
     {
         try {
@@ -664,11 +680,13 @@ class CallCenterController extends Controller
      *     )
      * )
      */
+
+//    ok
     public function visitinfo(Request $request)
     {
         try {
             $validated = $request->validate([
-                'id' => 'required|integer|min:1',
+                'id' => 'required',
             ]);
 
             $visit = Visit::where('id', $validated['id'])
@@ -694,9 +712,9 @@ class CallCenterController extends Controller
                     'order_id' => $visit->order_id,
                 ],
                 'user' => [
-                    'first_name' => $visit->user->fname,
-                    'last_name' => $visit->user->lname,
-                    'phone' => $visit->user->phone,
+                    'first_name' => $visit->user->fname ?? null,
+                    'last_name' => $visit->user->lname ?? null,
+                    'phone' => $visit->user->phone ?? null,
                     'birthday' => $visit->user->birthday ? Jalalian::fromCarbon(Carbon::parse($visit->user->birthday))->format('Y/m/d') : null,
                 ],
                 'visit_details' => [
@@ -739,6 +757,8 @@ class CallCenterController extends Controller
      *     )
      * )
      */
+
+//    ok
     public function onlineVisitsManagerLog(Request $request)
     {
         try {
@@ -787,6 +807,8 @@ class CallCenterController extends Controller
      *     )
      * )
      */
+
+//    ok
     public function onlineVisitsManager(Request $request)
     {
         try {
@@ -837,6 +859,8 @@ class CallCenterController extends Controller
      *     )
      * )
      */
+
+//    ok
     public function onlineVisits(Request $request)
     {
         try {
@@ -896,6 +920,8 @@ class CallCenterController extends Controller
      *     )
      * )
      */
+
+//    ok
     public function lastDayOnlineVisits(Request $request)
     {
         try {
@@ -962,6 +988,8 @@ class CallCenterController extends Controller
      *     )
      * )
      */
+
+//    ok
     public function unansweredCalls(Request $request)
     {
         try {
@@ -975,15 +1003,15 @@ class CallCenterController extends Controller
                 ->with(['user' => function ($query) {
                     $query->select('id', 'fname', 'lname', 'phone');
                 }])
-                ->groupBy('user_id')
+                ->groupBy('visits.id', 'visits.user_id', 'visits.created_at') // اصلاح groupBy
                 ->orderBy('created_at', 'desc')
                 ->get(['id', 'user_id', 'created_at']);
 
             $unanswered = $visits->map(function ($visit) {
                 return [
                     'id' => $visit->id,
-                    'name' => $visit->user->fname . ' ' . $visit->user->lname,
-                    'phone' => $visit->user->phone,
+                    'name' => $visit->user ? ($visit->user->fname . ' ' . $visit->user->lname) : 'نامشخص',
+                    'phone' => $visit->user ? $visit->user->phone : null,
                     'created_at' => Jalalian::fromCarbon(Carbon::parse($visit->created_at))->format('Y/m/d H:i:s'),
                 ];
             });
@@ -995,7 +1023,7 @@ class CallCenterController extends Controller
             ]);
         } catch (\Exception $e) {
             Log::error('unansweredCalls Error: ' . $e->getMessage());
-            return response()->json(['success' => false, 'message' => 'خطای غیرمنتظره رخ داده است.'], 500);
+            return response()->json(['success' => false, 'message' => 'خطای غیرمنتظره رخ داده است: ' . $e->getMessage()], 500);
         }
     }
 
@@ -1020,6 +1048,8 @@ class CallCenterController extends Controller
      *     )
      * )
      */
+
+//    ok
     public function followUpCalls(Request $request)
     {
         try {

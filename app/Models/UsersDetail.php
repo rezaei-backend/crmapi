@@ -25,4 +25,9 @@ class UsersDetail extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    public function customerSource(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(CustomerSource::class, 'customer_sources_id', 'id');
+    }
 }
