@@ -107,6 +107,7 @@ class CallCenterController extends Controller
      *     )
      * )
      */
+//    ok
     public function storeFinance(Request $request)
     {
         try {
@@ -218,6 +219,7 @@ class CallCenterController extends Controller
      *     )
      * )
      */
+//    ok
     public function storeSalesReport(Request $request)
     {
         try {
@@ -278,6 +280,7 @@ class CallCenterController extends Controller
      *     )
      * )
      */
+//    ok
     public function getFinanceList()
     {
         try {
@@ -325,6 +328,7 @@ class CallCenterController extends Controller
      *     )
      * )
      */
+//    ok
     public function getSalesList()
     {
         try {
@@ -666,9 +670,9 @@ class CallCenterController extends Controller
      */
     public function visitinfo(Request $request)
     {
-        try {
+//        try {
             $validated = $request->validate([
-                'id' => 'required|integer|min:1',
+                'id' => 'required',
             ]);
 
             $visit = Visit::where('id', $validated['id'])
@@ -694,10 +698,10 @@ class CallCenterController extends Controller
                     'order_id' => $visit->order_id,
                 ],
                 'user' => [
-                    'first_name' => $visit->user->fname,
-                    'last_name' => $visit->user->lname,
-                    'phone' => $visit->user->phone,
-                    'birthday' => $visit->user->birthday ? Jalalian::fromCarbon(Carbon::parse($visit->user->birthday))->format('Y/m/d') : null,
+                    'first_name' => $visit->user->fname ?? null,
+                    'last_name' => $visit->user->lname ?? null,
+                    'phone' => $visit->user->phone ?? null,
+//                    'birthday' => $visit->user->birthday ? Jalalian::fromCarbon(Carbon::parse($visit->user->birthday))->format('Y/m/d') : null,
                 ],
                 'visit_details' => [
                     'state' => $visit->state,
@@ -712,10 +716,11 @@ class CallCenterController extends Controller
                 'message' => 'اطلاعات ویزیت با موفقیت دریافت شد.',
                 'data' => [$data]
             ]);
-        } catch (\Exception $e) {
-            Log::error('visitinfo Error: ' . $e->getMessage());
-            return response()->json(['success' => false, 'message' => 'خطای غیرمنتظره رخ داده است.'], 500);
-        }
+//        } catch (\Exception $e) {
+//            dd($validated['id']);
+//            Log::error('visitinfo Error: ' . $e->getMessage());
+//            return response()->json(['success' => false, 'message' => 'خطای غیرمنتظره رخ داده است.'], 500);
+//        }
     }
 
     /**

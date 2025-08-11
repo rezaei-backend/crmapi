@@ -22,19 +22,6 @@ use OpenApi\Annotations as OA;
  */
 class ProductController extends Controller
 {
-    /**
-     * @OA\Get(
-     *     path="/api/products",
-     *     tags={"Products"},
-     *     summary="لیست محصولات فعال",
-     *     description="برمی‌گرداند لیست همه محصولات که فیلد enabled = 1 دارند",
-     *     @OA\Response(
-     *         response=200,
-     *         description="لیست محصولات",
-     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Product"))
-     *     )
-     * )
-     */
     public function index()
     {
         $products = Product::where('enabled', 1)->get();
