@@ -1,0 +1,28 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class UsersDetail extends Model
+{
+    protected $table = 'usersdetail';
+
+    protected $fillable = [
+        'user_id',
+        'city',
+        'town',
+        'address',
+        'zip_code',
+        'reign',
+        'information',
+        'customer_sources_id',
+        'description',
+        'day_count',
+    ];
+
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+}
