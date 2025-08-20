@@ -119,7 +119,7 @@ class CallCenterController extends Controller
                 'unit' => 'required|string|in:qom,tehran',
                 'deposit_date' => 'required|regex:/^\d{4}\/\d{2}\/\d{2}$/',
                 'deposit_time' => 'required|date_format:H:i',
-                'amount' => 'required|numeric|min:1',
+                'amount' => 'required|numeric',
                 'refund_reason' => 'required|string',
                 'card_number' => 'required|string|regex:/^\d{16}$/',
                 'last_four_digits' => 'required|string|regex:/^\d{4}$/',
@@ -229,7 +229,7 @@ class CallCenterController extends Controller
                 'full_name' => 'required|string|max:255',
                 'phone' => 'required|string|regex:/^09\d{9}$/',
                 'appointment_date' => 'required|regex:/^\d{4}\/\d{2}\/\d{2}$/',
-                'amount' => 'required|numeric|min:1',
+                'amount' => 'required|numeric',
                 'deposit_date' => 'required|regex:/^\d{4}\/\d{2}\/\d{2}$/',
                 'deposit_time' => 'required|date_format:H:i',
                 'tracking' => 'required|string|max:255',
@@ -384,7 +384,7 @@ class CallCenterController extends Controller
      * )
      */
 
-//    ok 50%
+//   ok
     public function onlineVisitsManagerLogDetail(Request $request)
     {
         try {
@@ -465,14 +465,14 @@ class CallCenterController extends Controller
      * )
      */
 
-//    not ok
+//   ok
     public function sendccLidsToAdmins(Request $request)
     {
         try {
             $validated = $request->validate([
                 'ids' => 'required|array',
-                'ids.*' => 'integer|min:1',
-                'adminId' => 'required|integer|min:1',
+                'ids.*' => 'integer',
+                'adminId' => 'required|integer',
             ]);
 
             $updatedCount = Visit::whereIn('id', $validated['ids'])->update([
@@ -482,7 +482,7 @@ class CallCenterController extends Controller
             ]);
 
             $lidManagerLog = LidManagerLog::create([
-                'admin_id' => null, // Session::get('admin.id') حذف شده
+                'admin_id' => null,
                 'to_admin_id' => $validated['adminId'],
                 'quantity' => count($validated['ids']),
             ]);
@@ -531,12 +531,12 @@ class CallCenterController extends Controller
      * )
      */
 
-//    not ok
+//   ok
     public function callcenterUpdateLidsCalls(Request $request)
     {
         try {
             $validated = $request->validate([
-                'visitId' => 'required|integer|min:1',
+                'visitId' => 'required|integer',
             ]);
 
             // $adminId = Session::get('admin.id'); // حذف شده
@@ -600,17 +600,17 @@ class CallCenterController extends Controller
      * )
      */
 
-//    not ok
+//   ok
     public function callcentersAddCall(Request $request)
     {
         try {
             $validated = $request->validate([
-                'state' => 'required|integer',
-                'stateap' => 'nullable|integer',
-                'statevo' => 'nullable|integer',
+                'state' => 'required|numeric',
+                'stateap' => 'nullable|numeric',
+                'statevo' => 'nullable|numeric',
                 'information' => 'nullable|string',
-                'visitId' => 'required|integer|min:1',
-                'follow_up' => 'nullable|integer',
+                'visitId' => 'required|numeric',
+                'follow_up' => 'nullable|numeric',
                 'date' => 'nullable|regex:/^\d{4}\/\d{2}\/\d{2}$/',
                 'time' => 'nullable|date_format:H:i',
             ]);
@@ -621,7 +621,7 @@ class CallCenterController extends Controller
             $validated['stateap'] = filter_var($validated['stateap'] ?? 0, FILTER_SANITIZE_NUMBER_INT);
             $validated['statevo'] = filter_var($validated['statevo'] ?? 0, FILTER_SANITIZE_NUMBER_INT);
             $validated['visit_id'] = $validated['visitId'];
-            $validated['admin_id'] = null; // Session::get('admin.id') حذف شده
+            $validated['admin_id'] = auth()->id() ?? 1; // یا ID ادمین پیش‌فرض
 
             unset($validated['visitId']);
 
@@ -630,7 +630,7 @@ class CallCenterController extends Controller
             if ($validated['state'] == 1) {
                 $reminderData = [
                     'visit_id' => $validated['visit_id'],
-                    'admin_id' => null, // Session::get('admin.id') حذف شده
+                    'admin_id' => auth()->id() ?? 1, // یا ID ادمین پیش‌فرض
                     'date' => isset($validated['date']) ? Jalalian::fromFormat('Y/m/d', $validated['date'])->toCarbon()->format('Y-m-d') : null,
                     'time' => htmlspecialchars($validated['time'] ?? null, ENT_QUOTES, 'UTF-8'),
                     'state' => 1,

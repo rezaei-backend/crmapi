@@ -19,4 +19,6 @@ class OnlineVisitReminder extends Model
     protected $casts = [
         'date' => 'date',
     ];
+
+    public $timestamps = false; // غیرفعال کردن timestamps
 }
