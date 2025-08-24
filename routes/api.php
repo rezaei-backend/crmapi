@@ -4,8 +4,33 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\CallCenterController;
+use App\Http\Controllers\Api\AuthController;
 
-Route::prefix('/products')->group(function () {
+/*
+|--------------------------------------------------------------------------
+| Auth Routes (Admins)
+|--------------------------------------------------------------------------
+*/
+Route::prefix('/auth')->group(function () {
+    // ثبت نام و لاگین بدون نیاز به احراز هویت
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/login', [AuthController::class, 'login']);
+
+    // مسیرهای محافظت‌شده برای ادمین‌ها
+    Route::middleware(['auth:sanctum', 'admin.auth'])->group(function () {
+        Route::post('/logout', [AuthController::class, 'logout']);
+        Route::get('/profile', function (\Illuminate\Http\Request $request) {
+            return $request->user();
+        });
+    });
+});
+
+/*
+|--------------------------------------------------------------------------
+| Products Routes
+|--------------------------------------------------------------------------
+*/
+Route::prefix('/products')->middleware(['auth:sanctum', 'admin.auth'])->group(function () {
     Route::get('/', [ProductController::class, 'index']);
     Route::get('{id}', [ProductController::class, 'show']);
     Route::post('/', [ProductController::class, 'store']);
@@ -13,13 +38,23 @@ Route::prefix('/products')->group(function () {
     Route::delete('{id}', [ProductController::class, 'destroy']);
 });
 
-Route::prefix('/users')->group(function () {
+/*
+|--------------------------------------------------------------------------
+| Users Routes
+|--------------------------------------------------------------------------
+*/
+Route::prefix('/users')->middleware(['auth:sanctum', 'admin.auth'])->group(function () {
     Route::post('/block', [UserController::class, 'blockUser']);
     Route::put('/update', [UserController::class, 'updateUserInfo']);
     Route::get('/info', [UserController::class, 'getUserInfo']);
 });
 
-Route::prefix('/callcenter')->group(function () {
+/*
+|--------------------------------------------------------------------------
+| CallCenter Routes
+|--------------------------------------------------------------------------
+*/
+Route::prefix('/callcenter')->middleware(['auth:sanctum', 'admin.auth'])->group(function () {
     Route::post('finance', [CallCenterController::class, 'storeFinance']);
     Route::get('finance', [CallCenterController::class, 'getFinanceList']);
     Route::post('sales-reports', [CallCenterController::class, 'storeSalesReport']);

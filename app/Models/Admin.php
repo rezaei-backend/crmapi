@@ -2,10 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Admin extends Model
+class Admin extends Authenticatable
 {
+    use HasApiTokens, HasFactory, Notifiable;
+
     protected $table = 'admins';
 
     protected $fillable = [
@@ -13,6 +18,7 @@ class Admin extends Model
         'lname',
         'username',
         'password',
+        'old_password',
         'enabled',
     ];
 
@@ -20,5 +26,10 @@ class Admin extends Model
         'enabled' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+    ];
+
+    protected $hidden = [
+        'password',
+        'old_password',
     ];
 }

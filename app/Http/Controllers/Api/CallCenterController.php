@@ -136,7 +136,7 @@ class CallCenterController extends Controller
 
             if ($validated['turn_type'] === 'turn') {
                 if (!isset($validated['turn_date']) || !isset($validated['turn_time'])) {
-                    return response()->json(['success' => false, 'message' => 'تاریخ و زمان نوبت برای نوع turn الزامی است.'], 422);
+                    return response()->json(['success' => false, 'message' => 'تاریخ و زمان نوبت برای نوع turn الزامی است'], 422);
                 }
             } else {
                 $validated['turn_date'] = null;
@@ -154,7 +154,7 @@ class CallCenterController extends Controller
                 ->count();
 
             if ($duplicateCount > 0) {
-                return response()->json(['success' => false, 'message' => 'رکورد تکراری، در سه روز گذشته وجود دارد.'], 422);
+                return response()->json(['success' => false, 'message' => 'رکورد تکراری، در سه روز گذشته وجود دارد'], 422);
             }
 
             $validated['financial_approval'] = 0;
@@ -170,12 +170,12 @@ class CallCenterController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'درخواست عودت وجه با موفقیت ثبت شد.',
+                'message' => 'درخواست عودت وجه با موفقیت ثبت شد',
                 'data' => ['id' => $finance->id]
             ], 201);
         } catch (\Exception $e) {
             Log::error('Finance Store Error: ' . $e->getMessage());
-            return response()->json(['success' => false, 'message' => 'خطای غیرمنتظره رخ داده است.'], 500);
+            return response()->json(['success' => false, 'message' => 'خطای غیرمنتظره رخ داده است'], 500);
         }
     }
 
@@ -252,12 +252,12 @@ class CallCenterController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'گزارش فروش با موفقیت ثبت شد.',
+                'message' => 'گزارش فروش با موفقیت ثبت شد',
                 'data' => ['id' => $salesReport->id]
             ], 201);
         } catch (\Exception $e) {
             Log::error('Sales Report Store Error: ' . $e->getMessage());
-            return response()->json(['success' => false, 'message' => 'خطای غیرمنتظره رخ داده است.'], 500);
+            return response()->json(['success' => false, 'message' => 'خطای غیرمنتظره رخ داده است'], 500);
         }
     }
 
@@ -301,12 +301,12 @@ class CallCenterController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'لیست تمام درخواست‌های عودت با موفقیت دریافت شد.',
+                'message' => 'لیست تمام درخواست‌های عودت با موفقیت دریافت شد',
                 'data' => $finances
             ]);
         } catch (\Exception $e) {
             Log::error('Finance List Error: ' . $e->getMessage());
-            return response()->json(['success' => false, 'message' => 'خطای غیرمنتظره رخ داده است.'], 500);
+            return response()->json(['success' => false, 'message' => 'خطای غیرمنتظره رخ داده است'], 500);
         }
     }
 
@@ -348,12 +348,12 @@ class CallCenterController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'لیست تمام گزارش‌های فروش با موفقیت دریافت شد.',
+                'message' => 'لیست تمام گزارش‌های فروش با موفقیت دریافت شد',
                 'data' => $salesReports
             ]);
         } catch (\Exception $e) {
             Log::error('Sales List Error: ' . $e->getMessage());
-            return response()->json(['success' => false, 'message' => 'خطای غیرمنتظره رخ داده است.'], 500);
+            return response()->json(['success' => false, 'message' => 'خطای غیرمنتظره رخ داده است'], 500);
         }
     }
 
@@ -422,12 +422,12 @@ class CallCenterController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'جزئیات لاگ مدیر ویزیت‌های آنلاین با موفقیت دریافت شد.',
+                'message' => 'جزئیات لاگ مدیر ویزیت‌های آنلاین با موفقیت دریافت شد',
                 'data' => $data
             ]);
         } catch (\Exception $e) {
             Log::error('OnlineVisitsManagerLogDetail Error: ' . $e->getMessage());
-            return response()->json(['success' => false, 'message' => 'خطای غیرمنتظره رخ داده است.'], 500);
+            return response()->json(['success' => false, 'message' => 'خطای غیرمنتظره رخ داده است'], 500);
         }
     }
 
@@ -489,12 +489,12 @@ class CallCenterController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'لیدها با موفقیت به‌روزرسانی شدند.',
+                'message' => 'لیدها با موفقیت به‌روزرسانی شدند',
                 'data' => ['updated_count' => $updatedCount]
             ], 201);
         } catch (\Exception $e) {
             Log::error('sendccLidsToAdmins Error: ' . $e->getMessage());
-            return response()->json(['success' => false, 'message' => 'خطای غیرمنتظره رخ داده است.'], 500);
+            return response()->json(['success' => false, 'message' => 'خطای غیرمنتظره رخ داده است'], 500);
         }
     }
 
@@ -551,12 +551,12 @@ class CallCenterController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'پاکسازی لید با موفقیت انجام شد.',
+                'message' => 'پاکسازی لید با موفقیت انجام شد',
                 'data' => ['updated_count' => $updatedCount]
             ], 201);
         } catch (\Exception $e) {
             Log::error('callcenterUpdateLidsCalls Error: ' . $e->getMessage());
-            return response()->json(['success' => false, 'message' => 'خطای غیرمنتظره رخ داده است.'], 500);
+            return response()->json(['success' => false, 'message' => 'خطای غیرمنتظره رخ داده است'], 500);
         }
     }
 
@@ -640,12 +640,12 @@ class CallCenterController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'تماس با موفقیت ثبت شد.',
+                'message' => 'تماس با موفقیت ثبت شد',
                 'data' => ['id' => $call->id]
             ], 201);
         } catch (\Exception $e) {
             Log::error('callcentersAddCall Error: ' . $e->getMessage());
-            return response()->json(['success' => false, 'message' => 'خطای غیرمنتظره رخ داده است.'], 500);
+            return response()->json(['success' => false, 'message' => 'خطای غیرمنتظره رخ داده است'], 500);
         }
     }
 
@@ -700,7 +700,7 @@ class CallCenterController extends Controller
             if (!$visit) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'هیچ نتیجه‌ای یافت نشد.',
+                    'message' => 'هیچ نتیجه‌ای یافت نشد',
                     'data' => []
                 ]);
             }
@@ -727,12 +727,12 @@ class CallCenterController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'اطلاعات ویزیت با موفقیت دریافت شد.',
+                'message' => 'اطلاعات ویزیت با موفقیت دریافت شد',
                 'data' => [$data]
             ]);
         } catch (\Exception $e) {
             Log::error('visitinfo Error: ' . $e->getMessage());
-            return response()->json(['success' => false, 'message' => 'خطای غیرمنتظره رخ داده است.'], 500);
+            return response()->json(['success' => false, 'message' => '!نامعتبر id ،خطای غیرمنتظره رخ داده است'], 500);
         }
     }
 
@@ -777,12 +777,12 @@ class CallCenterController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'لاگ مدیر ویزیت‌های آنلاین با موفقیت دریافت شد.',
+                'message' => 'لاگ مدیر ویزیت‌های آنلاین با موفقیت دریافت شد',
                 'data' => $logs
             ]);
         } catch (\Exception $e) {
             Log::error('onlineVisitsManagerLog Error: ' . $e->getMessage());
-            return response()->json(['success' => false, 'message' => 'خطای غیرمنتظره رخ داده است.'], 500);
+            return response()->json(['success' => false, 'message' => 'خطای غیرمنتظره رخ داده است'], 500);
         }
     }
 
@@ -829,12 +829,12 @@ class CallCenterController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'لیست ویزیت‌های آنلاین مدیر با موفقیت دریافت شد.',
+                'message' => 'لیست ویزیت‌های آنلاین مدیر با موفقیت دریافت شد',
                 'data' => $visits
             ]);
         } catch (\Exception $e) {
             Log::error('onlineVisitsManager Error: ' . $e->getMessage());
-            return response()->json(['success' => false, 'message' => 'خطای غیرمنتظره رخ داده است.'], 500);
+            return response()->json(['success' => false, 'message' => 'خطای غیرمنتظره رخ داده است'], 500);
         }
     }
 
@@ -890,12 +890,12 @@ class CallCenterController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'لیست ویزیت‌های آنلاین با موفقیت دریافت شد.',
+                'message' => 'لیست ویزیت‌های آنلاین با موفقیت دریافت شد',
                 'data' => $visits
             ]);
         } catch (\Exception $e) {
             Log::error('onlineVisits Error: ' . $e->getMessage());
-            return response()->json(['success' => false, 'message' => 'خطای غیرمنتظره رخ داده است.'], 500);
+            return response()->json(['success' => false, 'message' => 'خطای غیرمنتظره رخ داده است'], 500);
         }
     }
 
@@ -958,12 +958,12 @@ class CallCenterController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'ویزیت‌های آنلاین روز گذشته با موفقیت دریافت شد.',
+                'message' => 'ویزیت‌های آنلاین روز گذشته با موفقیت دریافت شد',
                 'data' => $transformed
             ]);
         } catch (\Exception $e) {
             Log::error('lastDayOnlineVisits Error: ' . $e->getMessage());
-            return response()->json(['success' => false, 'message' => 'خطای غیرمنتظره رخ داده است.'], 500);
+            return response()->json(['success' => false, 'message' => 'خطای غیرمنتظره رخ داده است'], 500);
         }
     }
 
@@ -1018,7 +1018,7 @@ class CallCenterController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'لیست تماس‌های بی‌پاسخ با موفقیت دریافت شد.',
+                'message' => 'لیست تماس‌های بی‌پاسخ با موفقیت دریافت شد',
                 'data' => $unanswered
             ]);
         } catch (\Exception $e) {
@@ -1080,12 +1080,12 @@ class CallCenterController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'لیست تماس‌های پیگیری با موفقیت دریافت شد.',
+                'message' => 'لیست تماس‌های پیگیری با موفقیت دریافت شد',
                 'data' => $followUps
             ]);
         } catch (\Exception $e) {
             Log::error('followUpCalls Error: ' . $e->getMessage());
-            return response()->json(['success' => false, 'message' => 'خطای غیرمنتظره رخ داده است.'], 500);
+            return response()->json(['success' => false, 'message' => 'خطای غیرمنتظره رخ داده است'], 500);
         }
     }
 
@@ -1121,13 +1121,13 @@ class CallCenterController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => $data_exists ? 'داده‌ها یافت شدند.' : 'هیچ داده‌ای یافت نشد.',
+                'message' => $data_exists ? 'داده‌ها یافت شدند' : 'هیچ داده‌ای یافت نشد',
                 'data_exists' => $data_exists,
                 'data' => $data_exists ? $sources : []
             ]);
         } catch (\Exception $e) {
             Log::error('customerSourceList Error: ' . $e->getMessage());
-            return response()->json(['success' => false, 'message' => 'خطای غیرمنتظره رخ داده است.'], 500);
+            return response()->json(['success' => false, 'message' => 'خطای غیرمنتظره رخ داده است'], 500);
         }
     }
 }

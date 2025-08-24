@@ -5,8 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
-use App\Models\User;
+use App\Models\Admin;
 use Carbon\Carbon;
 
 class ActivityLog extends Model
@@ -16,7 +15,7 @@ class ActivityLog extends Model
         'model_type',
         'model_id',
         'description',
-        'user_id',
+        'admin_id',
         'login_at',
         'logout_at',
     ];
@@ -27,11 +26,11 @@ class ActivityLog extends Model
     ];
 
     /**
-     * ارتباط با مدل User
+     * ارتباط با مدل Admin
      */
-    public function user()
+    public function admin()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Admin::class, 'admin_id');
     }
 
     /**
@@ -41,22 +40,43 @@ class ActivityLog extends Model
     {
         $modelType = class_basename($model);
 
-        $actionText = match ($action) {
-            'created' => 'ایجاد شد',
-            'updated' => 'ویرایش شد',
-            'deleted' => 'حذف شد',
-            default => $action
-        };
+        $admin = Auth::guard('admin')->user();
 
-        $message = "رکوردی از مدل {$modelType} {$actionText} شد.";
+        // اگر Auth null باشد و action login/logout باشد، ادمین را از modelId لود کن
+        if (!$admin && in_array($action, ['login', 'logout'])) {
+            $admin = Admin::find($modelId);
+        }
+
+        $adminName = $admin ? "{$admin->fname} {$admin->lname}" : 'Unknown';
+        $adminId = $admin ? $admin->id : null;
+
+        // سفارشی‌سازی پیام برای login/logout
+        if ($action === 'login') {
+            $message = "ادمین {$adminName} وارد شد.";
+        } elseif ($action === 'logout') {
+            $message = "ادمین {$adminName} خارج شد.";
+        } else {
+            $actionText = match ($action) {
+                'created' => 'ایجاد شد',
+                'updated' => 'ویرایش شد',
+                'deleted' => 'حذف شد',
+                default => $action
+            };
+            $message = "رکوردی از مدل {$modelType} توسط {$adminName} {$actionText} شد.";
+        }
 
         $log = self::create([
             'action' => $action,
             'model_type' => $modelType,
             'model_id' => $modelId,
             'description' => $message,
-            'user_id' => Auth::id(),
+            'admin_id' => $adminId,
         ]);
+
+        // برای login، login_at را تنظیم کن (اگر لازم باشد)
+        if ($action === 'login') {
+            $log->update(['login_at' => Carbon::now()]);
+        }
 
         self::writeToFile($log, $message);
 
@@ -64,28 +84,36 @@ class ActivityLog extends Model
     }
 
     /**
-     * ثبت لاگ زمان ورود ادمین
+     * ثبت لاگ زمان ورود ادمین (در صورت نیاز به استفاده مستقیم)
      */
     public static function recordLogin()
     {
+        $admin = Auth::guard('admin')->user();
+        $adminName = $admin ? "{$admin->fname} {$admin->lname}" : 'Unknown';
+        $message = "ادمین {$adminName} وارد شد.";
+
         $log = self::create([
             'action' => 'login',
-            'model_type' => 'User',
-            'model_id' => Auth::id(),
-            'description' => 'ورود ادمین',
-            'user_id' => Auth::id(),
+            'model_type' => 'Admin',
+            'model_id' => $admin ? $admin->id : null,
+            'description' => $message,
+            'admin_id' => $admin ? $admin->id : null,
             'login_at' => Carbon::now(),
         ]);
 
-        self::writeToFile($log, 'ورود ادمین');
+        self::writeToFile($log, $message);
     }
 
     /**
-     * ثبت لاگ زمان خروج ادمین
+     * ثبت لاگ زمان خروج ادمین (در صورت نیاز به استفاده مستقیم)
      */
     public static function recordLogout()
     {
-        $lastLog = self::where('user_id', Auth::id())
+        $admin = Auth::guard('admin')->user();
+        $adminName = $admin ? "{$admin->fname} {$admin->lname}" : 'Unknown';
+        $message = "ادمین {$adminName} خارج شد.";
+
+        $lastLog = self::where('admin_id', $admin ? $admin->id : null)
             ->whereNull('logout_at')
             ->latest()
             ->first();
@@ -94,10 +122,10 @@ class ActivityLog extends Model
             $lastLog->update([
                 'logout_at' => Carbon::now(),
                 'action' => 'logout',
-                'description' => 'خروج ادمین',
+                'description' => $message,
             ]);
 
-            self::writeToFile($lastLog, 'خروج ادمین');
+            self::writeToFile($lastLog, $message);
         }
     }
 
@@ -106,10 +134,19 @@ class ActivityLog extends Model
      */
     protected static function writeToFile($log, $message)
     {
+        $admin = Auth::guard('admin')->user();
+
+        // اگر Auth null باشد، ادمین را از log->admin_id لود کن
+        if (!$admin && $log->admin_id) {
+            $admin = Admin::find($log->admin_id);
+        }
+
+        $adminName = $admin ? "{$admin->fname} {$admin->lname}" : 'Unknown';
+
         $logEntry = sprintf(
             "[%s] User: %s, Action: %s, Model: %s, Model ID: %s, Description: %s\n",
             now()->timezone('Asia/Tehran')->format('Y/m/d H:i:s'),
-            Auth::user() ? Auth::user()->name : 'Unknown',
+            $adminName,
             $log->action,
             $log->model_type,
             $log->model_id,
