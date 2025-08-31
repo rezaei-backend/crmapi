@@ -15,8 +15,8 @@
 /node_modules
 /public/build
 /public/hot
-/public/logs.txt
 /public/storage
+/public/logs.txt
 /storage/*.key
 /storage/pail
 /vendor

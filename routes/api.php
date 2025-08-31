@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\UserController;
@@ -11,17 +12,14 @@ use App\Http\Controllers\Api\AuthController;
 | Auth Routes (Admins)
 |--------------------------------------------------------------------------
 */
-Route::prefix('/auth')->group(function () {
-    // ثبت نام و لاگین بدون نیاز به احراز هویت
+Route::prefix('auth')->group(function () {
+    // Register & login
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
 
-    // مسیرهای محافظت‌شده برای ادمین‌ها
-    Route::middleware(['auth:sanctum', 'admin.auth'])->group(function () {
+    // Protected routes
+    Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
-        Route::get('/profile', function (\Illuminate\Http\Request $request) {
-            return $request->user();
-        });
     });
 });
 

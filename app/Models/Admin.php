@@ -22,14 +22,14 @@ class Admin extends Authenticatable
         'enabled',
     ];
 
+    protected $hidden = [
+        'password',
+        'old_password',
+    ];
+
     protected $casts = [
         'enabled' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-    ];
-
-    protected $hidden = [
-        'password',
-        'old_password',
     ];
 }

@@ -38,20 +38,16 @@ class ActivityLog extends Model
      */
     public static function record($action, $model, $modelId)
     {
-        $modelType = class_basename($model);
+        $modelType = is_string($model) ? $model : class_basename($model);
 
-        $admin = Auth::guard('admin')->user();
-
-        // اگر Auth null باشد و action login/logout باشد، ادمین را از modelId لود کن
-        if (!$admin && in_array($action, ['login', 'logout'])) {
-            $admin = Admin::find($modelId);
-        }
+        $admin = Admin::find($modelId);
 
         $adminName = $admin ? "{$admin->fname} {$admin->lname}" : 'Unknown';
         $adminId = $admin ? $admin->id : null;
 
-        // سفارشی‌سازی پیام برای login/logout
-        if ($action === 'login') {
+        if ($action === 'created') {
+            $message = "ادمین {$adminName} ایجاد شد.";
+        } elseif ($action === 'login') {
             $message = "ادمین {$adminName} وارد شد.";
         } elseif ($action === 'logout') {
             $message = "ادمین {$adminName} خارج شد.";
@@ -73,7 +69,6 @@ class ActivityLog extends Model
             'admin_id' => $adminId,
         ]);
 
-        // برای login، login_at را تنظیم کن (اگر لازم باشد)
         if ($action === 'login') {
             $log->update(['login_at' => Carbon::now()]);
         }
@@ -84,11 +79,11 @@ class ActivityLog extends Model
     }
 
     /**
-     * ثبت لاگ زمان ورود ادمین (در صورت نیاز به استفاده مستقیم)
+     * ثبت لاگ زمان ورود ادمین
      */
-    public static function recordLogin()
+    public static function recordLogin($adminId)
     {
-        $admin = Auth::guard('admin')->user();
+        $admin = Admin::find($adminId);
         $adminName = $admin ? "{$admin->fname} {$admin->lname}" : 'Unknown';
         $message = "ادمین {$adminName} وارد شد.";
 
@@ -105,11 +100,11 @@ class ActivityLog extends Model
     }
 
     /**
-     * ثبت لاگ زمان خروج ادمین (در صورت نیاز به استفاده مستقیم)
+     * ثبت لاگ زمان خروج ادمین
      */
-    public static function recordLogout()
+    public static function recordLogout($adminId)
     {
-        $admin = Auth::guard('admin')->user();
+        $admin = Admin::find($adminId);
         $adminName = $admin ? "{$admin->fname} {$admin->lname}" : 'Unknown';
         $message = "ادمین {$adminName} خارج شد.";
 
@@ -134,13 +129,7 @@ class ActivityLog extends Model
      */
     protected static function writeToFile($log, $message)
     {
-        $admin = Auth::guard('admin')->user();
-
-        // اگر Auth null باشد، ادمین را از log->admin_id لود کن
-        if (!$admin && $log->admin_id) {
-            $admin = Admin::find($log->admin_id);
-        }
-
+        $admin = $log->admin_id ? Admin::find($log->admin_id) : null;
         $adminName = $admin ? "{$admin->fname} {$admin->lname}" : 'Unknown';
 
         $logEntry = sprintf(

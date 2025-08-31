@@ -69,6 +69,7 @@ return [
                 'asset' => [],
                 'docs' => [],
                 'oauth2_callback' => [],
+                'admin.auth' => \App\Http\Middleware\AdminAuth::class,
             ],
 
             /*
