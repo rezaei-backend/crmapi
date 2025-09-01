@@ -5,6 +5,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Http\JsonResponse;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withProviders()
@@ -24,7 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        $exceptions->respond(function (Response $response, Throwable $e, Request $request) {
+        $exceptions->respond(function (Response|JsonResponse $response, Throwable $e, Request $request) {
             if ($e instanceof \Symfony\Component\Routing\Exception\RouteNotFoundException) {
                 return response()->json(['message' => 'Route not found'], 404);
             }
