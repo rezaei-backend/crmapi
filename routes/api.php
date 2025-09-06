@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\CallCenterController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\DiseasesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -69,4 +70,28 @@ Route::prefix('/callcenter')->middleware(['auth:sanctum', 'admin.auth'])->group(
     Route::get('unanswered-calls', [CallCenterController::class, 'unansweredCalls']);
     Route::get('follow-up-calls', [CallCenterController::class, 'followUpCalls']);
     Route::get('customer-source-list', [CallCenterController::class, 'customerSourceList']);
+});
+
+/*
+|--------------------------------------------------------------------------
+| Diseases Categories Routes
+|--------------------------------------------------------------------------
+*/
+Route::prefix('/diseases-categories')->middleware(['auth:sanctum', 'admin.auth'])->group(function () {
+    Route::get('/', [DiseasesController::class, 'getCategories']);
+    Route::post('/', [DiseasesController::class, 'addCategory']);
+    Route::put('{id}', [DiseasesController::class, 'updateCategory']);
+    Route::delete('{id}', [DiseasesController::class, 'deleteCategory']);
+});
+
+/*
+|--------------------------------------------------------------------------
+| Diseases Routes
+|--------------------------------------------------------------------------
+*/
+Route::prefix('/diseases')->middleware(['auth:sanctum', 'admin.auth'])->group(function () {
+    Route::get('/', [DiseasesController::class, 'getDiseases']);
+    Route::post('/', [DiseasesController::class, 'addDisease']);
+    Route::put('{id}', [DiseasesController::class, 'updateDisease']);
+    Route::delete('{id}', [DiseasesController::class, 'deleteDisease']);
 });

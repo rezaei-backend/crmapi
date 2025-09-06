@@ -1,4 +1,4 @@
-<?php
+<?phpthrow_unless
 
 namespace Tests\Feature;
 
