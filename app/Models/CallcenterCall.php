@@ -27,6 +27,8 @@ class CallcenterCall extends Model
     {
         return $this->belongsTo(Admin::class, 'admin_id', 'id');
     }
-
-
+    public function visit(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Visit::class, 'visit_id', 'id');
+    }
 }

@@ -16,4 +16,8 @@ class CustomerSource extends Model
     protected $casts = [
         'created_at' => 'datetime',
     ];
+    public function usersDetails(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(UsersDetail::class, 'customer_sources_id', 'id');
+    }
 }

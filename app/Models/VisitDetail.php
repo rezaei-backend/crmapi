@@ -21,4 +21,8 @@ class VisitDetail extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+    public function visit(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Visit::class, 'visit_id', 'id');
+    }
 }

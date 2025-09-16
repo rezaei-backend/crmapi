@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\CallCenterController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DiseasesController;
+use App\Http\Controllers\Api\ReservationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,11 +15,9 @@ use App\Http\Controllers\Api\DiseasesController;
 |--------------------------------------------------------------------------
 */
 Route::prefix('auth')->group(function () {
-    // Register & login
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
 
-    // Protected routes
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
     });
@@ -94,4 +93,26 @@ Route::prefix('/diseases')->middleware(['auth:sanctum', 'admin.auth'])->group(fu
     Route::post('/', [DiseasesController::class, 'addDisease']);
     Route::put('{id}', [DiseasesController::class, 'updateDisease']);
     Route::delete('{id}', [DiseasesController::class, 'deleteDisease']);
+});
+
+/*
+|--------------------------------------------------------------------------
+| Reservations Routes
+|--------------------------------------------------------------------------
+*/
+Route::prefix('/reservations')->middleware(['auth:sanctum', 'admin.auth'])->group(function () {
+    Route::get('report', [ReservationController::class, 'reservationsReport']);
+    Route::get('7days-state', [ReservationController::class, 'get7DaysState']);
+    Route::get('7days-state2', [ReservationController::class, 'get7DaysState2']);
+    Route::get('slot-details', [ReservationController::class, 'fetchSlotDetails']);
+    Route::get('7days', [ReservationController::class, 'get7Days']);
+    Route::get('user-info', [ReservationController::class, 'getUserInfo']);
+    Route::get('info/{id}', [ReservationController::class, 'reservationInfo']);
+    Route::get('visited', [ReservationController::class, 'reservationsVisited']);
+    Route::get('not-visited', [ReservationController::class, 'reservationsNotVisited']);
+    Route::post('del-m', [ReservationController::class, 'delMReservation']);
+    Route::post('del', [ReservationController::class, 'delReservation']);
+    Route::post('add-m', [ReservationController::class, 'addMReservation']);
+    Route::post('add', [ReservationController::class, 'addReservation']);
+    Route::post('update-info', [ReservationController::class, 'updateReservationInfo']);
 });

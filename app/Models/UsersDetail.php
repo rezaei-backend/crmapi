@@ -26,6 +26,11 @@ class UsersDetail extends Model
         'updated_at' => 'datetime',
     ];
 
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function customerSource(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(CustomerSource::class, 'customer_sources_id', 'id');

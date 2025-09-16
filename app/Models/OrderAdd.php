@@ -22,4 +22,9 @@ class OrderAdd extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    public function order(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Order::class);
+    }
 }
